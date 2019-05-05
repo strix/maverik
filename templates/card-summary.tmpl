@@ -1,0 +1,4 @@
+Punch Cards:
+{{- range . }}
+  {{ .Name }}: {{ .PunchSummary.Total }}{{ if .PunchSummary.Reward }} | FREE one available!{{ else }}{{ end }}
+{{- end }}
