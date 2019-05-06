@@ -39,14 +39,12 @@ to quickly create a Cobra application.`,
 					}
 				}
 				// ******* END REMOVE **************************************************
-				err := viper.Unmarshal(answers)
-				if err != nil {
-					panic(err)
-				}
+				viper.Set("username", answers.Username)
+				viper.Set("password", answers.Password)
 				// ******* UNCOMMENT WHEN https://github.com/spf13/viper/pull/450 is merged
 				// err = viper.SafeWriteConfig()
 				// ******* END UNCOMMNENT *************************************************
-				err = viper.WriteConfig()
+				err := viper.WriteConfig()
 				if err != nil {
 					panic(err)
 				}
