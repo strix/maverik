@@ -3,6 +3,8 @@ package maverik
 import (
 	"fmt"
 	"os"
+	"path"
+	"runtime"
 	"text/template"
 
 	"encoding/json"
@@ -16,8 +18,6 @@ import (
 var maverikAuthToken = "23630dddba52715dea5ec378394666de"
 var baseUrl = "https://maverik.com/.api/v1"
 var cookieJar, _ = cookiejar.New(nil)
-
-var templates = template.Must(template.ParseGlob("templates/*"))
 
 var punchCards = map[string]int{
 	"bonfire": 180,
@@ -156,6 +156,12 @@ func PrintSummary() { // TODO: pass maverik config
 	}
 	cards := []string{"drinks", "bonfire", "energy"}
 	cardResults := GetPunchCards(cards)
+
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("No caller information")
+	}
+	templates := template.Must(template.ParseGlob(path.Dir(filename) + "/../../templates/*"))
 
 	err := templates.ExecuteTemplate(os.Stdout, "user-summary.tmpl", currentUserInfo)
 
