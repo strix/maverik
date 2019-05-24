@@ -19,6 +19,8 @@ var maverikAuthToken = "23630dddba52715dea5ec378394666de"
 var baseUrl = "https://maverik.com/.api/v1"
 var cookieJar, _ = cookiejar.New(nil)
 
+var daysUntilExpiration = 14
+
 const (
 	Bonfire = 180
 	Drinks  = 181
@@ -76,14 +78,16 @@ func (r Reward) DateIssued() time.Time {
 }
 
 func (r Reward) ExpirationDate() time.Time {
-	// adding 14 days for punch card expiration and 1 day for js date correction.
-	expMillis := r.Issued + 1296000000
-	return time.Unix(0, expMillis*int64(time.Millisecond))
+	return r.DateIssued().AddDate(0, 0, daysUntilExpiration)
+}
+
+func (r Reward) HumanExpirationDate() string {
+	return r.ExpirationDate().Format("Mon, 02 Jan 2006")
 }
 
 func (r Reward) DaysToExpire() int32 {
 	// maybe floor instead of convert to int32?
-	return int32(r.ExpirationDate().Sub(r.DateIssued()).Hours() / 24)
+	return int32(r.ExpirationDate().Sub(time.Now()).Hours() / 24)
 }
 
 func sendRequest(req *http.Request) ([]byte, error) {
@@ -204,6 +208,8 @@ func PrintSummary() { // TODO: pass maverik config
 	cards := []int{Drinks, Bonfire, Energy}
 	cardResults := GetPunchCards(cards)
 
+	rewards := GetRewardInfo()
+
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
 		panic("No caller information")
@@ -217,6 +223,11 @@ func PrintSummary() { // TODO: pass maverik config
 	}
 
 	err = templates.ExecuteTemplate(os.Stdout, "card-summary.tmpl", cardResults)
+	if err != nil {
+		panic(err)
+	}
+
+	err = templates.ExecuteTemplate(os.Stdout, "reward-summary.tmpl", rewards)
 	if err != nil {
 		panic(err)
 	}
