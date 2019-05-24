@@ -62,7 +62,29 @@ type PunchCard struct {
 	} `json:"PunchSummary"`
 }
 
-// {"PunchSummary":{"total":2,"reward":false,"punch_id":181}}
+type Reward struct {
+	PunchId  int    `json:"punchId"`
+	Name     string `json:"promoName"`
+	Redeemed bool   `json:"redeemed"`
+	Expired  bool   `json:"expired"`
+	Quantity int32  `json:"quantity"`
+	Issued   int64  `json:"rewardDate"`
+}
+
+func (r Reward) DateIssued() time.Time {
+	return time.Unix(0, r.Issued*int64(time.Millisecond))
+}
+
+func (r Reward) ExpirationDate() time.Time {
+	// adding 14 days for punch card expiration and 1 day for js date correction.
+	expMillis := r.Issued + 1296000000
+	return time.Unix(0, expMillis*int64(time.Millisecond))
+}
+
+func (r Reward) DaysToExpire() int32 {
+	// maybe floor instead of convert to int32?
+	return int32(r.ExpirationDate().Sub(r.DateIssued()).Hours() / 24)
+}
 
 func sendRequest(req *http.Request) ([]byte, error) {
 	req.Header.Add("authorization", maverikAuthToken)
@@ -153,6 +175,26 @@ func GetPointInfo() Points {
 		UserInformation()
 	}
 	return currentUserInfo.User.Points
+}
+
+func GetRewardInfo() []Reward {
+	if (UserInfo{}) == currentUserInfo {
+		UserInformation()
+	}
+	path := fmt.Sprintf("%s/%d", "/virtualbuy/userrewards", currentUserInfo.User.UserId)
+	url := fmt.Sprintf("%s%s", baseUrl, path)
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	resData, _ := sendRequest(req)
+
+	rewards := []Reward{}
+	err := json.Unmarshal(resData, &rewards)
+	if err != nil {
+		panic(err)
+	}
+
+	return rewards
 }
 
 func PrintSummary() { // TODO: pass maverik config
