@@ -19,6 +19,8 @@ var maverikAuthToken = "23630dddba52715dea5ec378394666de"
 var baseUrl = "https://maverik.com/.api/v1"
 var cookieJar, _ = cookiejar.New(nil)
 
+var daysUntilExpiration = 14
+
 const (
 	Bonfire = 180
 	Drinks  = 181
@@ -62,7 +64,31 @@ type PunchCard struct {
 	} `json:"PunchSummary"`
 }
 
-// {"PunchSummary":{"total":2,"reward":false,"punch_id":181}}
+type Reward struct {
+	PunchId  int    `json:"punchId"`
+	Name     string `json:"promoName"`
+	Redeemed bool   `json:"redeemed"`
+	Expired  bool   `json:"expired"`
+	Quantity int32  `json:"quantity"`
+	Issued   int64  `json:"rewardDate"`
+}
+
+func (r Reward) DateIssued() time.Time {
+	return time.Unix(0, r.Issued*int64(time.Millisecond))
+}
+
+func (r Reward) ExpirationDate() time.Time {
+	return r.DateIssued().AddDate(0, 0, daysUntilExpiration)
+}
+
+func (r Reward) HumanExpirationDate() string {
+	return r.ExpirationDate().Format("Mon, 02 Jan 2006")
+}
+
+func (r Reward) DaysToExpire() int32 {
+	// maybe floor instead of convert to int32?
+	return int32(r.ExpirationDate().Sub(time.Now()).Hours() / 24)
+}
 
 func sendRequest(req *http.Request) ([]byte, error) {
 	req.Header.Add("authorization", maverikAuthToken)
@@ -155,12 +181,34 @@ func GetPointInfo() Points {
 	return currentUserInfo.User.Points
 }
 
+func GetRewardInfo() []Reward {
+	if (UserInfo{}) == currentUserInfo {
+		UserInformation()
+	}
+	path := fmt.Sprintf("%s/%d", "/virtualbuy/userrewards", currentUserInfo.User.UserId)
+	url := fmt.Sprintf("%s%s", baseUrl, path)
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	resData, _ := sendRequest(req)
+
+	rewards := []Reward{}
+	err := json.Unmarshal(resData, &rewards)
+	if err != nil {
+		panic(err)
+	}
+
+	return rewards
+}
+
 func PrintSummary() { // TODO: pass maverik config
 	if (UserInfo{}) == currentUserInfo {
 		UserInformation()
 	}
 	cards := []int{Drinks, Bonfire, Energy}
 	cardResults := GetPunchCards(cards)
+
+	rewards := GetRewardInfo()
 
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
@@ -175,6 +223,11 @@ func PrintSummary() { // TODO: pass maverik config
 	}
 
 	err = templates.ExecuteTemplate(os.Stdout, "card-summary.tmpl", cardResults)
+	if err != nil {
+		panic(err)
+	}
+
+	err = templates.ExecuteTemplate(os.Stdout, "reward-summary.tmpl", rewards)
 	if err != nil {
 		panic(err)
 	}
