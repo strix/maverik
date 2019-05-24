@@ -19,6 +19,12 @@ var maverikAuthToken = "23630dddba52715dea5ec378394666de"
 var baseUrl = "https://maverik.com/.api/v1"
 var cookieJar, _ = cookiejar.New(nil)
 
+const (
+	Bonfire = 180
+	Drinks  = 181
+	Energy  = 182
+)
+
 var punchCards = map[string]int{
 	"bonfire": 180,
 	"drinks":  181,
@@ -26,9 +32,9 @@ var punchCards = map[string]int{
 }
 
 var PunchCardNames = map[int]string{
-	180: "Bonfire Items",
-	181: "Fountain Drinks",
-	182: "Energy Drinks",
+	Bonfire: "Bonfire Items",
+	Drinks:  "Fountain Drinks",
+	Energy:  "Energy Drinks",
 }
 
 var currentUserInfo = UserInfo{}
@@ -110,13 +116,12 @@ func UserInformation() UserInfo {
 	return currentUserInfo
 }
 
-func GetPunchCard(punchCardType string) PunchCard {
+func GetPunchCard(punchCardType int) PunchCard {
 	// TODO: validate punchCardType with punchCards map keys
 	if (UserInfo{}) == currentUserInfo {
 		UserInformation()
 	}
-	punchCardId := punchCards[punchCardType]
-	path := fmt.Sprintf("%s/%d/%d", "/punch/user-id", currentUserInfo.User.UserId, punchCardId)
+	path := fmt.Sprintf("%s/%d/%d", "/punch/user-id", currentUserInfo.User.UserId, punchCardType)
 	url := fmt.Sprintf("%s%s", baseUrl, path)
 
 	req, _ := http.NewRequest("GET", url, nil)
@@ -125,7 +130,7 @@ func GetPunchCard(punchCardType string) PunchCard {
 
 	punchCard := PunchCard{}
 	err := json.Unmarshal(resData, &punchCard)
-	punchCard.Name = PunchCardNames[punchCardId]
+	punchCard.Name = PunchCardNames[punchCardType]
 	if err != nil {
 		panic(err)
 	}
@@ -133,7 +138,7 @@ func GetPunchCard(punchCardType string) PunchCard {
 	return punchCard
 }
 
-func GetPunchCards(punchCardTypes []string) []PunchCard {
+func GetPunchCards(punchCardTypes []int) []PunchCard {
 	punchCards := []PunchCard{}
 	for _, punchCardName := range punchCardTypes {
 		// TODO: run in parallel
@@ -154,7 +159,7 @@ func PrintSummary() { // TODO: pass maverik config
 	if (UserInfo{}) == currentUserInfo {
 		UserInformation()
 	}
-	cards := []string{"drinks", "bonfire", "energy"}
+	cards := []int{Drinks, Bonfire, Energy}
 	cardResults := GetPunchCards(cards)
 
 	_, filename, _, ok := runtime.Caller(0)
