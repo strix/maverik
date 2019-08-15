@@ -19,37 +19,11 @@ var apiAuth = Auth{}
 var baseUrl = "https://gateway.maverik.com"
 var cookieJar, _ = cookiejar.New(nil)
 
-// var daysUntilExpiration = 14
-
-// const (
-// Bonfire = 180
-// Drinks  = 181
-// Energy  = 182
-// )
-
-// var punchCards = map[string]int{
-// "bonfire": 180,
-// "drinks":  181,
-// "energy":  182,
-// }
-
-// var PunchCardNames = map[int]string{
-// Bonfire: "Bonfire Items",
-// Drinks:  "Fountain Drinks",
-// Energy:  "Energy Drinks",
-// }
-
 var currentUserInfo = UserInfo{}
 
 type Auth struct {
 	Token string `json:"access_token"`
 }
-
-// type Points struct {
-// Earned    float64 `json:"earned"`
-// Spent     float64 `json:"spent"`
-// Available float64 `json:"available"`
-// }
 
 type UserInfo struct {
 	AccountId  int    `json:"accountId"`
@@ -75,36 +49,6 @@ type Expiration struct {
 	Quantity       int    `json:"amount"`
 	ExpirationDate string `json:"expirationDate"`
 }
-
-// type PunchCard struct {
-// Name         string
-// PunchSummary struct {
-// Total   int  `json:"total"`
-// Reward  bool `json:"reward"`
-// PunchId int  `json:"punch_id"`
-// } `json:"PunchSummary"`
-// }
-
-// type Reward struct {
-// PunchId  int    `json:"punchId"`
-// Name     string `json:"promoName"`
-// Redeemed bool   `json:"redeemed"`
-// Expired  bool   `json:"expired"`
-// Quantity int32  `json:"quantity"`
-// Issued   int64  `json:"rewardDate"`
-// }
-
-// func (r Reward) DateIssued() time.Time {
-// return time.Unix(0, r.Issued*int64(time.Millisecond))
-// }
-
-// func (r Reward) ExpirationDate() time.Time {
-// return r.DateIssued().AddDate(0, 0, daysUntilExpiration)
-// }
-
-// func (r Reward) HumanExpirationDate() string {
-// return r.ExpirationDate().Format("Mon, 02 Jan 2006")
-// }
 
 func (exp Expiration) DaysToExpire() int32 {
 	dateLayout := "2006-01-02"
