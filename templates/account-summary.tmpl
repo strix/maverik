@@ -1,0 +1,14 @@
+Points: {{ .Points.Amount }}
+
+Rewards:
+{{- range .Redeemables }}
+  {{ .Name }}:
+  {{- range .Expirations }}
+    {{ .Quantity }} expires in {{ .DaysToExpire }} days ({{ .ExpirationDate }})
+  {{- end }}
+{{- end }}
+
+Punch Cards:
+{{- range .PunchCards }}
+  {{ .Name }}: {{ .Amount }}
+{{- end }}
