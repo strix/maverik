@@ -16,16 +16,9 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "maverik",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	Run: func(cmd *cobra.Command, args []string) {
+	Short: "The Maverik CLI tool",
+	Long:  `Used for querying basic account info and transactions for your Maverik account.`,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		if viper.Get("username") == nil && viper.Get("password") == nil {
 			answers := questions.Ask()
 			save := questions.ShouldSave()
@@ -53,6 +46,8 @@ to quickly create a Cobra application.`,
 		} else {
 			maverik.Login(viper.GetString("username"), viper.GetString("password"))
 		}
+	},
+	Run: func(cmd *cobra.Command, args []string) {
 		maverik.PrintSummary()
 	},
 }
