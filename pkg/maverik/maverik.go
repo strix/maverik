@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"sort"
 	"text/tabwriter"
 	"text/template"
 
@@ -146,6 +147,12 @@ func GetAccountInfo() AccountInfo {
 	if err != nil {
 		panic(err)
 	}
+
+	exps := accountInfo.Points.Expirations
+	sort.Slice(exps, func(i, j int) bool {
+		return exps[i].ExpirationDate < exps[j].ExpirationDate
+	})
+
 	return accountInfo
 }
 
