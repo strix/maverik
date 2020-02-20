@@ -1,4 +1,4 @@
-Points: {{ .Points.Amount }}
+Points: {{ .Points.Amount }} ({{ (index .Points.Expirations 0).Quantity }} points expiring on {{ (index .Points.Expirations 0).ExpirationDate }})
 
 Rewards:
 {{- range .Redeemables }}
