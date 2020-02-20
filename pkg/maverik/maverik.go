@@ -154,7 +154,9 @@ func GetTransactions() []Transaction {
 
 	currentTime := time.Now()
 	formattedEndDate := currentTime.Format("2006-01-02")
-	startDate := currentTime.AddDate(0, 0, -60) // transactions from 60 days ago
+	// TODO: make this customizable with flags
+	// Transactions from 60 days ago
+	startDate := currentTime.AddDate(0, 0, -60)
 	formattedStartDate := startDate.Format("2006-01-02")
 	req, _ := http.NewRequest("GET", url, nil)
 	q := req.URL.Query()
