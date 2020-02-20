@@ -53,6 +53,8 @@ to quickly create a Cobra application.`,
 		} else {
 			maverik.Login(viper.GetString("username"), viper.GetString("password"))
 		}
+	},
+	Run: func(cmd *cobra.Command, args []string) {
 		maverik.PrintSummary()
 	},
 }
