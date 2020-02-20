@@ -65,6 +65,10 @@ func sendRequest(req *http.Request) ([]byte, error) {
 	}
 	req.Header.Add("APP-ID", "PAYX")
 	req.Header.Add("content-type", "application/json")
+	req.Header.Add("origin", "https://loyalty.maverik.com")
+	req.Header.Add("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36")
+	req.Header.Add("sec-fetch-site", "same-site")
+	req.Header.Add("sec-fetch-mode", "cors")
 
 	client := &http.Client{
 		Timeout: time.Second * 10,
