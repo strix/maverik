@@ -6,6 +6,8 @@ Rewards:
   {{- range .Expirations }}
     {{ .Quantity }} expires in {{ .DaysToExpire }} days ({{ .ExpirationDate }})
   {{- end }}
+  {{ else }}
+  None
 {{- end }}
 
 Punch Cards:
