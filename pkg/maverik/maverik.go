@@ -59,8 +59,8 @@ type Transaction struct {
 }
 
 type Expiration struct {
-	Quantity       int    `json:"amount"`
-	ExpirationDate string `json:"expirationDate"`
+	Quantity       float32 `json:"amount"`
+	ExpirationDate string  `json:"expirationDate"`
 }
 
 func (exp Expiration) DaysToExpire() int32 {
