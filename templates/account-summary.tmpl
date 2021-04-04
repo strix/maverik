@@ -12,5 +12,8 @@ Rewards:
 
 Punch Cards:
 {{- range .PunchCards }}
-  {{ .Name }}: {{ .Amount }}
+  {{- if or .Name .Title}}
+  {{if .Name}}{{ .Name }}{{else}}{{.Title}}{{end}}: {{ .Amount }}
+    {{if .Subtitle}}({{ .Subtitle }}){{end}}
+  {{- end }}
 {{- end }}

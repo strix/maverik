@@ -41,9 +41,15 @@ type AccountInfo struct {
 	Points      Item   `json:"trailPoints"`
 }
 
+type ItemInfo struct {
+	Key  string `json:"copyKey"`
+	Text string `json:"copyText"`
+}
+
 type Item struct {
 	Amount      float32      `json:"balance,float64"`
 	Name        string       `json:"name"`
+	Info        []ItemInfo   `json:"copy"`
 	Expirations []Expiration `json:"expirations,omitempty"`
 }
 
@@ -70,6 +76,26 @@ func (exp Expiration) DaysToExpire() int32 {
 		panic(err)
 	}
 	return int32(expTime.Sub(time.Now()).Hours()/24) + 1
+}
+
+func (item Item) Title() string {
+	key := "DETAILS_TITLE"
+	for _, elem := range item.Info {
+		if elem.Key == key {
+			return elem.Text
+		}
+	}
+	return ""
+}
+
+func (item Item) Subtitle() string {
+	key := "DETAILS_SUBTITLE"
+	for _, elem := range item.Info {
+		if elem.Key == key {
+			return elem.Text
+		}
+	}
+	return ""
 }
 
 func sendRequest(req *http.Request) ([]byte, error) {
